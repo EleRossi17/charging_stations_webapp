@@ -10,7 +10,7 @@ Applicazione web per visualizzare stazioni di ricarica elettrica su mappa intera
 - Marker interattivi con informazioni su titolo, tipo e potenza
 
 ## Struttura
-
+```bash
 ├── main.py
 ├── data_loader.py
 ├── df_trento.csv
@@ -19,7 +19,7 @@ Applicazione web per visualizzare stazioni di ricarica elettrica su mappa intera
 │ └── index.html
 ├── requirements.txt
 └── README.md
-
+```
 
 ## Requisiti
 
