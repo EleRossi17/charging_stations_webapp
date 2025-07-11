@@ -36,5 +36,5 @@ pip install -r requirements.txt
 
 ### 2. Avvio
 ```bash
-python uvicorn main:app --reload
+python -m uvicorn main:app --reload
 ```
