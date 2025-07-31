@@ -1,42 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <title>EV Charging Map</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EV Charging Stations</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <style>
-    html, body { margin: 0; padding: 0; }
-    #map { height: 100vh; width: 100%; }
+    /* Reset base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      z-index: 0;
+    }
+
+    #slider-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 300px;
+    }
+
+    #yearSlider {
+      width: 100%;
+      margin: 10px 0;
+      accent-color: #1976d2;
+    }
+
+    #yearLabel {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    /* Marker popup text */
+    .leaflet-popup-content {
+      font-size: 14px;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <div id="slider-panel">
+    <div id="yearLabel">Anno selezionato: 2024</div>
+    <input type="range" id="yearSlider" min="2024" max="2035" value="2024" />
+  </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([45.5, 10.5], 7);
-
+    const map = L.map('map').setView([46.07, 11.12], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '© OpenStreetMap',
     }).addTo(map);
 
-    fetch('/stations')
-      .then(response => response.json())
-      .then(data => {
-        data.forEach(station => {
-          const marker = L.marker([station.lat, station.lon]).addTo(map);
-          const popup = `
-            <strong>${station.title}</strong><br>
-            Tipo: ${station.charging_station_type}<br>
-            Potenza: ${station.PowerKW} kW
-          `;
-          marker.bindPopup(popup);
-        });
+    let allStations = [];
+    let markers = [];
+
+    const slider = document.getElementById("yearSlider");
+    const label = document.getElementById("yearLabel");
+
+    function updateMarkers(selectedYear) {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+
+      const filtered = allStations.filter(s => parseInt(s.anno) <= selectedYear);
+      filtered.forEach(station => {
+        const marker = L.marker([station.Latitude, station.Longitude]).addTo(map);
+        marker.bindPopup(`
+          <strong>${station.Title}</strong><br>
+          Potenza: ${station.PowerKW}kW<br>
+          Tipo: ${station.charging_station_type}<br>
+          Anno: ${station.anno}
+        `);
+        markers.push(marker);
       });
+    }
+
+    fetch("/api/stations")
+      .then(res => res.json())
+      .then(data => {
+        allStations = data;
+        updateMarkers(parseInt(slider.value));
+      });
+
+    slider.addEventListener("input", () => {
+      const val = parseInt(slider.value);
+      label.textContent = `Anno selezionato: ${val}`;
+      updateMarkers(val);
+    });
   </script>
 </body>
 </html>
