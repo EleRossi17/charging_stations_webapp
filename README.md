@@ -38,3 +38,13 @@ pip install -r requirements.txt
 ```bash
 python -m uvicorn main:app --reload
 ```
+
+### 3. Features
+
+    - Slider per anno
+    - Zoom su location (cluster)
+    - Selezione scenario:
+        - Gestione dati
+        - Gestione front-end
+        - Parametri scenario
+    - Cambio parametri & ricalcolo
